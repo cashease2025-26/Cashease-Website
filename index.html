@@ -47,12 +47,10 @@
     <div class="feature-box"><h3>Financial Suggestions</h3><p>Personalized tips based on spending and savings streaks.</p></div>
   </div>
 </section>
-
 <!-- DASHBOARD -->
 <section id="dashboard" class="dashboard">
   <h2>Expense Dashboard</h2>
-
-  <form id="limitForm">
+  <form id="limitForm" style="margin-bottom:20px;text-align:center;">
     <input type="number" id="limit" placeholder="Set Spending Limit (₹)" required>
     <button type="submit">Set Limit</button>
   </form>
@@ -91,7 +89,8 @@
       </tr>
     </tfoot>
   </table>
- <div class="chart-container">
+
+  <div class="chart-container">
     <canvas id="expenseChart"></canvas>
   </div>
 </section>
@@ -130,7 +129,6 @@
   </form>
 
   <div id="goalList"></div>
-   <div id="goalList"></div>
   <div id="streakContainer" style="text-align:center; margin-top:20px;">
     <h3>💰 Saving Streak: <span id="streakCount">0</span> days</h3>
   </div>
