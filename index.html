@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashEase - Smart Expense Tracker</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<header>
+  <h1>CashEase</h1>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#goals">Goals</a>
+    <a href="about.html">About Cashease</a>
+  </nav>
+  <button onclick="logout()">Logout</button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h2>Take Control of Your Money, Effortlessly</h2>
+  <p>Track expenses, plan goals, get insights, and download smart financial reports.</p>
+  <button onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">
+    Start Tracking
+  </button>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <h2 style="text-align:center;color:#2b6cb0;margin-bottom:40px;">Key Features</h2>
+  <div class="features">
+    <div class="feature-box"><h3>Secure Access</h3><p>Safe login and data protection.</p></div>
+    <div class="feature-box"><h3>Smart Dashboard</h3><p>Visual charts and real-time expense updates.</p></div>
+    <div class="feature-box"><h3>Goal Planning</h3><p>Set targets and track progress to achieve your goals.</p></div>
+    <div class="feature-box"><h3>Financial Suggestions</h3><p>Personalized tips based on spending and savings streaks.</p></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="dashboard">
+  <h2>Expense Dashboard</h2>
+  <form id="limitForm" style="margin-bottom:20px;text-align:center;">
+    <input type="number" id="limit" placeholder="Set Spending Limit (₹)" required>
+    <button type="submit">Set Limit</button>
+  </form>
+
+  <form id="expenseForm">
+    <input type="text" id="desc" placeholder="Description" required>
+    <input type="number" id="amount" placeholder="Amount (₹)" required>
+    <select id="category">
+      <option>Food</option>
+      <option>Transport</option>
+      <option>Bills</option>
+      <option>Entertainment</option>
+      <option>Other</option>
+    </select>
+    <input type="date" id="expenseDate" required>
+    <button type="submit">Add Expense</button>
+  </form>
+
+  <table id="expenseTable">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Amount (₹)</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td id="totalAmount">0</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="chart-container">
+    <canvas id="expenseChart"></canvas>
+  </div>
+
+  <!-- PDF -->
+  <div style="text-align:center;margin-top:20px;">
+    <select id="reportMonth">
+      <option value="all">All Time</option>
+      <option value="0">January</option>
+      <option value="1">February</option>
+      <option value="2">March</option>
+      <option value="3">April</option>
+      <option value="4">May</option>
+      <option value="5">June</option>
+      <option value="6">July</option>
+      <option value="7">August</option>
+      <option value="8">September</option>
+      <option value="9">October</option>
+      <option value="10">November</option>
+      <option value="11">December</option>
+    </select>
+
+    <button onclick="generatePDF()">Download Financial Report (PDF)</button>
+  </div>
+</section>
+
+<div id="suggestions" class="dashboard">
+  <h2>Financial Suggestions</h2>
+  <ul id="suggestionsList"></ul>
+</div>
+
+<!-- GOALS -->
+<section id="goals" class="dashboard">
+  <h2>Goal Based Planning</h2>
+
+  <form id="goalForm">
+    <input type="text" id="goalName" placeholder="Goal Name" required>
+    <input type="number" id="goalAmount" placeholder="Target Amount (₹)" required>
+    <input type="date" id="goalDate" required>
+    <button type="submit">Add Goal</button>
+  </form>
+
+  <div id="goalList"></div>
+  <div id="streakContainer" style="text-align:center; margin-top:20px;">
+    <h3>💰 Saving Streak: <span id="streakCount">0</span> days</h3>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 CashEase. All rights reserved.</p>
+</footer>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAJ9hRzqHXapze81EO-C2ZwWNU5mUM4Xc",
+    authDomain: "expense-tracker25-26.firebaseapp.com",
+    projectId: "expense-tracker25-26",
+    storageBucket: "expense-tracker25-26.firebasestorage.app",
+    messagingSenderId: "553107606008",
+    appId: "1:553107606008:web:8e5b677921c93f7ea3ee0d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Redirect to login if not authenticated
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+
+  // Make Firebase globally accessible
+  window.auth = auth;
+  window.db = db;
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
