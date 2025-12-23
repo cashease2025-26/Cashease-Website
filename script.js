@@ -265,16 +265,52 @@ function generateSuggestions() {
 }
 
 /*************** PDF ***************/
-window.generatePDF = () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("CashEase Report", 10, 10);
-  expenses.forEach((e, i) =>
-    doc.text(`${i + 1}. ${e.desc} - ₹${e.amount}`, 10, 20 + i * 6)
-  );
-  doc.save("CashEase_Report.pdf");
-};
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const monthVal = document.getElementById("reportMonth").value;
+    let filtered = expenses;
+    if (monthVal !== "all") filtered = expenses.filter(e => new Date(e.date).getMonth() == monthVal);
 
+    let y = 15;
+    doc.setFontSize(18);
+    doc.text("CashEase - Financial Report", 14, y);
+    y += 10;
+
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${new Date().toDateString()}`, 14, y);
+    y += 10;
+
+    const total = filtered.reduce((s,e)=>s+e.amount,0);
+    doc.text(`Total Expense: ₹${total.toFixed(2)}`, 14, y);
+    y += 8;
+
+    const catMap = {};
+    filtered.forEach(e=>catMap[e.category]=(catMap[e.category]||0)+e.amount);
+    doc.setFontSize(14);
+    doc.text("Category Breakdown", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    Object.keys(catMap).forEach(c=>{
+        doc.text(`${c}: ₹${catMap[c].toFixed(2)}`, 18, y);
+        y += 6;
+    });
+
+    y += 8;
+    doc.setFontSize(14);
+    doc.text("Goals Summary", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    goals.forEach(g=>{
+        const p = ((g.saved/g.amount)*100).toFixed(1);
+        doc.text(`${g.name} - ${p}% completed`, 18, y);
+        y += 6;
+    });
+
+    doc.save("CashEase_Report.pdf");
+}
 /*************** LOGOUT ***************/
 window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
