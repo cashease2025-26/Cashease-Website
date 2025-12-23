@@ -348,3 +348,8 @@ function generatePDF() {
 window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
 };
+
+window.deleteExpense = deleteExpense;
+window.deleteGoal = deleteGoal;
+window.addSavings = addSavings;
+window.generatePDF = generatePDF;
