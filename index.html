@@ -23,9 +23,9 @@
     <a href="#features">Features</a>
     <a href="#dashboard">Dashboard</a>
     <a href="#goals">Goals</a>
-    <a href="about.html">About Cashease</a>
+    <a href="about.html">About CashEase</a>
   </nav>
-  <button onclick="logout()">Logout</button>
+  <button id="logoutBtn">Logout</button>
 </header>
 
 <!-- HERO -->
@@ -51,7 +51,8 @@
 <!-- DASHBOARD -->
 <section id="dashboard" class="dashboard">
   <h2>Expense Dashboard</h2>
-  <form id="limitForm" style="margin-bottom:20px;text-align:center;">
+
+  <form id="limitForm">
     <input type="number" id="limit" placeholder="Set Spending Limit (₹)" required>
     <button type="submit">Set Limit</button>
   </form>
@@ -94,33 +95,7 @@
   <div class="chart-container">
     <canvas id="expenseChart"></canvas>
   </div>
-
-  <!-- PDF -->
-  <div style="text-align:center;margin-top:20px;">
-    <select id="reportMonth">
-      <option value="all">All Time</option>
-      <option value="0">January</option>
-      <option value="1">February</option>
-      <option value="2">March</option>
-      <option value="3">April</option>
-      <option value="4">May</option>
-      <option value="5">June</option>
-      <option value="6">July</option>
-      <option value="7">August</option>
-      <option value="8">September</option>
-      <option value="9">October</option>
-      <option value="10">November</option>
-      <option value="11">December</option>
-    </select>
-
-    <button onclick="generatePDF()">Download Financial Report (PDF)</button>
-  </div>
 </section>
-
-<div id="suggestions" class="dashboard">
-  <h2>Financial Suggestions</h2>
-  <ul id="suggestionsList"></ul>
-</div>
 
 <!-- GOALS -->
 <section id="goals" class="dashboard">
@@ -134,46 +109,52 @@
   </form>
 
   <div id="goalList"></div>
-  <div id="streakContainer" style="text-align:center; margin-top:20px;">
-    <h3>💰 Saving Streak: <span id="streakCount">0</span> days</h3>
-  </div>
 </section>
 
 <footer>
   <p>© 2025 CashEase. All rights reserved.</p>
 </footer>
 
-<!-- Firebase SDKs -->
+<!-- Firebase + App Logic -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
   const firebaseConfig = {
-      apiKey: "AIzaSyBAJ9hRzqHXapze81EO-C2ZwWNU5mUM4Xc",
-  authDomain: "expense-tracker25-26.firebaseapp.com",
-  projectId: "expense-tracker25-26",
-  storageBucket: "expense-tracker25-26.firebasestorage.app",
-  messagingSenderId: "553107606008",
-  appId: "1:553107606008:web:8e5b677921c93f7ea3ee0d"
+    apiKey: "AIzaSyBAJ9hRzqHXapze81EO-C2ZwWNU5mUM4Xc",
+    authDomain: "expense-tracker25-26.firebaseapp.com",
+    projectId: "expense-tracker25-26",
+    storageBucket: "expense-tracker25-26.appspot.com",
+    messagingSenderId: "553107606008",
+    appId: "1:553107606008:web:8e5b677921c93f7ea3ee0d"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Redirect to login if not authenticated
+  // Auth guard
   onAuthStateChanged(auth, user => {
     if (!user) {
       window.location.href = "login.html";
     }
   });
 
-  // Make Firebase globally accessible
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
+
+  // Expose for script.js
   window.auth = auth;
   window.db = db;
 </script>
 
-<script src="script.js"></script>
+<!-- MAIN SCRIPT -->
+<script type="module" src="script.js"></script>
+
 </body>
 </html>
