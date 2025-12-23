@@ -349,6 +349,6 @@ function generatePDF() {
     doc.save("CashEase_Report.pdf");
 }
 
-function logout() {
+window.logout() {
     auth.signOut().then(() => window.location.href = "login.html");
 }
