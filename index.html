@@ -91,12 +91,16 @@
       </tr>
     </tfoot>
   </table>
-
-  <div class="chart-container">
+ <div class="chart-container">
     <canvas id="expenseChart"></canvas>
   </div>
 </section>
-
+<div id="suggestions" class="dashboard">
+  <h2>Financial Suggestions</h2>
+  <ul id="suggestionsList"></ul>
+</div>
+<select id="reportMonth">...</select>
+  <button onclick="generatePDF()">Download Financial Report(PDF)</button>
 <!-- GOALS -->
 <section id="goals" class="dashboard">
   <h2>Goal Based Planning</h2>
@@ -109,6 +113,10 @@
   </form>
 
   <div id="goalList"></div>
+   <div id="goalList"></div>
+  <div id="streakContainer" style="text-align:center; margin-top:20px;">
+    <h3>💰 Saving Streak: <span id="streakCount">0</span> days</h3>
+  </div>
 </section>
 
 <footer>
