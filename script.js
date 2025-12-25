@@ -49,7 +49,7 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-/*************** FIRESTORE ***************/
+/*************** FIRESTORE ***************
 async function fetchExpenses() {
   const snap = await getDocs(collection(db, "users", userId, "expenses"));
   expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -346,10 +346,6 @@ function generatePDF() {
     doc.save("CashEase_Report.pdf");
 }
 
-window.toggleProfileMenu = () => {
-  const menu = document.getElementById("profileDropdown");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-};
 /*************** LOGOUT ***************/
 window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
@@ -384,5 +380,23 @@ window.confirmDeleteAccount = async () => {
 };
 window.deleteExpense = deleteExpense;
 window.deleteGoal = deleteGoal;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const profileIcon = document.getElementById("profileIcon");
+  const dropdown = document.getElementById("profileDropdown");
+
+  if (profileIcon && dropdown) {
+    profileIcon.addEventListener("click", () => {
+      dropdown.classList.toggle("hidden");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!profileIcon.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add("hidden");
+      }
+    });
+  }
+});
 window.addSavings = addSavings;
 window.generatePDF = generatePDF;
