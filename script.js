@@ -350,7 +350,5 @@ window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
 };
 
-  }
-});
 window.addSavings = addSavings;
 window.generatePDF = generatePDF;
