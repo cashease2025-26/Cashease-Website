@@ -68,6 +68,7 @@ async function addExpenseFirestore(expense) {
   expenses.push(expense);
   updateTable();
   updateChart();
+  checklimit();
   generateSuggestions();
 }
 
@@ -352,3 +353,5 @@ window.logout = () => {
 
 window.addSavings = addSavings;
 window.generatePDF = generatePDF;
+window.deleteExpense = deleteExpense;
+window.deleteGoal = deleteGaol;
