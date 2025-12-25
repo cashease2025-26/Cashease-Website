@@ -25,15 +25,7 @@
     <a href="#goals">Goals</a>
     <a href="about.html">About CashEase</a>
   </nav>
-    <div class="profile-menu">
-  <div id="profileIcon">👤</div>
-
-  <div id="profileDropdown" class="dropdown hidden">
-    <button id="profileLogout">Logout</button>
-    <button id="deleteAccount" class="danger">Delete Account</button>
-  </div>
-</div>
-
+    <button id="logoutBtn">Logout</button>
 </header>
 
 <!-- HERO -->
@@ -170,6 +162,12 @@
     if (!user) {
       window.location.href = "login.html";
     }
+  });
+ // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
   });
 
 
