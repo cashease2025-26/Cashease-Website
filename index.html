@@ -172,12 +172,6 @@
     }
   });
 
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = "login.html";
-    });
-  });
 
   // Expose for script.js
   window.auth = auth;
