@@ -6,7 +6,6 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  deleteUser
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import {
@@ -351,51 +350,6 @@ window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
 };
 
-window.confirmDeleteAccount = async () => {
-  const confirm1 = confirm(
-    "⚠️ WARNING!\nDeleting your account will permanently erase all your data.\nThis action CANNOT be undone.\n\nDo you want to continue?"
-  );
-
-  if (!confirm1) return;
-
-  const user = auth.currentUser;
-
-  try {
-    // Delete user data from Firestore
-    const expenseSnap = await getDocs(collection(db, "users", user.uid, "expenses"));
-    expenseSnap.forEach(docu => deleteDoc(docu.ref));
-
-    const goalSnap = await getDocs(collection(db, "users", user.uid, "goals"));
-    goalSnap.forEach(docu => deleteDoc(docu.ref));
-
-    // Delete Auth account
-    await deleteUser(user);
-
-    alert("✅ Account deleted successfully");
-    window.location.href = "signup.html";
-
-  } catch (error) {
-    alert("⚠️ Please login again to delete your account.");
-  }
-};
-window.deleteExpense = deleteExpense;
-window.deleteGoal = deleteGoal;
-
-document.addEventListener("DOMContentLoaded", () => {
-  const profileIcon = document.getElementById("profileIcon");
-  const dropdown = document.getElementById("profileDropdown");
-
-  if (profileIcon && dropdown) {
-    profileIcon.addEventListener("click", () => {
-      dropdown.classList.toggle("hidden");
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!profileIcon.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add("hidden");
-      }
-    });
   }
 });
 window.addSavings = addSavings;
