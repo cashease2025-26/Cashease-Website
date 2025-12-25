@@ -25,7 +25,15 @@
     <a href="#goals">Goals</a>
     <a href="about.html">About CashEase</a>
   </nav>
-  <button id="logoutBtn">Logout</button>
+  <!-- PROFILE MENU -->
+<div class="profile-container">
+  <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+
+  <div class="profile-menu" id="profileMenu">
+    <button onclick="logout()">🚪 Logout</button>
+    <button class="danger" onclick="deleteAccount()">🗑 Delete Account</button>
+  </div>
+</div>
 </header>
 
 <!-- HERO -->
