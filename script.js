@@ -5,7 +5,8 @@ import {
   getDocs,
   doc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  deleteUser
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 import {
@@ -344,11 +345,43 @@ function generatePDF() {
 
     doc.save("CashEase_Report.pdf");
 }
+
+window.toggleProfileMenu = () => {
+  const menu = document.getElementById("profileDropdown");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+};
 /*************** LOGOUT ***************/
 window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
 };
 
+window.confirmDeleteAccount = async () => {
+  const confirm1 = confirm(
+    "⚠️ WARNING!\nDeleting your account will permanently erase all your data.\nThis action CANNOT be undone.\n\nDo you want to continue?"
+  );
+
+  if (!confirm1) return;
+
+  const user = auth.currentUser;
+
+  try {
+    // Delete user data from Firestore
+    const expenseSnap = await getDocs(collection(db, "users", user.uid, "expenses"));
+    expenseSnap.forEach(docu => deleteDoc(docu.ref));
+
+    const goalSnap = await getDocs(collection(db, "users", user.uid, "goals"));
+    goalSnap.forEach(docu => deleteDoc(docu.ref));
+
+    // Delete Auth account
+    await deleteUser(user);
+
+    alert("✅ Account deleted successfully");
+    window.location.href = "signup.html";
+
+  } catch (error) {
+    alert("⚠️ Please login again to delete your account.");
+  }
+};
 window.deleteExpense = deleteExpense;
 window.deleteGoal = deleteGoal;
 window.addSavings = addSavings;
