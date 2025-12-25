@@ -337,6 +337,7 @@ table button:hover {
     position: relative;
     display: flex;
     align-items: center;
+    z-index:9999;
 }
 
 /* Profile icon */
