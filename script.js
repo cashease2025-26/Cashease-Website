@@ -49,7 +49,7 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-/*************** FIRESTORE ***************
+/*************** FIRESTORE ***************/
 async function fetchExpenses() {
   const snap = await getDocs(collection(db, "users", userId, "expenses"));
   expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
