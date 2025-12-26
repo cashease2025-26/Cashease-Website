@@ -165,7 +165,9 @@ section {
     line-height: 1.6;
 }
 
-
+#dashboard{
+    scroll-margin-top:100px;
+}
 .dashboard {
     background: rgba(25, 25, 25, 0.9);
     backdrop-filter: blur(10px);
