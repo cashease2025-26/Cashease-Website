@@ -8,10 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 
-<!-- Chart JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
@@ -28,7 +26,7 @@
     <button id="logoutBtn">Logout</button>
 </header>
 
-<!-- HERO -->
+
 <section class="hero">
   <h2>Take Control of Your Money, Effortlessly</h2>
   <p>Track expenses, plan goals, get insights, and download smart financial reports.</p>
@@ -37,7 +35,7 @@
   </button>
 </section>
 
-<!-- FEATURES -->
+
 <section id="features">
   <h2 style="text-align:center;color:#2b6cb0;margin-bottom:40px;">Key Features</h2>
   <div class="features">
@@ -47,7 +45,7 @@
     <div class="feature-box"><h3>Financial Suggestions</h3><p>Personalized tips based on spending and savings streaks.</p></div>
   </div>
 </section>
-<!-- DASHBOARD -->
+
 <section id="dashboard" class="dashboard">
   <h2>Expense Dashboard</h2>
   <form id="limitForm" style="margin-bottom:20px;text-align:center;">
@@ -117,7 +115,7 @@
 
     <button onclick="generatePDF()">Download Financial Report (PDF)</button>
   </div>
-<!-- GOALS -->
+
 <section id="goals" class="dashboard">
   <h2>Goal Based Planning</h2>
 
@@ -138,7 +136,7 @@
   <p>© 2025 CashEase. All rights reserved.</p>
 </footer>
 
-<!-- Firebase + App Logic -->
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
@@ -157,27 +155,25 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Auth guard
   onAuthStateChanged(auth, user => {
     if (!user) {
       window.location.href = "login.html";
     }
   });
- // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
     signOut(auth).then(() => {
       window.location.href = "login.html";
     });
   });
-
-
-  // Expose for script.js
   window.auth = auth;
   window.db = db;
 </script>
 
-<!-- MAIN SCRIPT -->
+
 <script type="module" src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
 
 </body>
 </html>
