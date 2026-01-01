@@ -261,41 +261,131 @@ function renderGoals() {
 /*************** SUGGESTIONS LOGIC ***************/
 function generateSuggestions() {
     suggestionsList.innerHTML = "";
+
+    if (!expenses || expenses.length === 0) {
+        addSuggestion("📌 Start adding expenses to receive smart financial insights.");
+        return;
+    }
+
     const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const daysSet = new Set(expenses.map(e => e.date));
+    const days = daysSet.size || 1;
+    const avgDaily = totalSpent / days;
 
-    // Spending limit warning
-    if (limit > 0 && totalSpent / limit >= 0.8) {
-        const li = document.createElement("li");
-        li.textContent = "⚠️ You are close to your spending limit. Consider reducing unnecessary expenses.";
-        suggestionsList.appendChild(li);
+    budgetAnalysis(totalSpent);
+    categoryAnalysis(totalSpent);
+    dailyAnalysis(avgDaily);
+    goalAnalysis();
+    savingsAnalysis();
+    smartTips();
+}
+
+/* HELPER */
+function addSuggestion(text) {
+    const li = document.createElement("li");
+    li.textContent = text;
+    suggestionsList.appendChild(li);
+}
+
+/* 1️⃣ BUDGET ANALYSIS */
+function budgetAnalysis(totalSpent) {
+    if (!limit || limit <= 0) return;
+
+    const usage = totalSpent / limit;
+
+    if (usage >= 1) {
+        addSuggestion("🚨 Budget exceeded! Immediately cut non-essential expenses.");
+    } else if (usage >= 0.9) {
+        addSuggestion("⚠️ You've used 90% of your budget. Avoid shopping & eating out.");
+    } else if (usage >= 0.75) {
+        addSuggestion("📉 Spending is high. Review discretionary expenses.");
+    } else {
+        addSuggestion("✅ Budget usage is healthy. Keep it up!");
     }
+}
 
-    // Category-specific advice
-    if (expenses.length > 0) {
-        const catMap = {};
-        expenses.forEach(e => catMap[e.category] = (catMap[e.category] || 0) + e.amount);
-        const maxCategory = Object.keys(catMap).reduce((a,b) => catMap[a] > catMap[b] ? a : b);
-        const li = document.createElement("li");
-        li.textContent = `💡 You spend the most on ${maxCategory}. Try to reduce expenses here if possible.`;
-        suggestionsList.appendChild(li);
-    }
+/* 2️⃣ CATEGORY ANALYSIS */
+function categoryAnalysis(totalSpent) {
+    const catMap = {};
 
-    // Goal progress advice
-    goals.forEach(g => {
-        const progress = g.saved / g.amount;
-        if (progress < 0.3) {
-            const li = document.createElement("li");
-            li.textContent = `💰 Your goal "${g.name}" is progressing slowly. Consider saving more regularly.`;
-            suggestionsList.appendChild(li);
+    expenses.forEach(e => {
+        catMap[e.category] = (catMap[e.category] || 0) + e.amount;
+    });
+
+    Object.entries(catMap).forEach(([cat, amt]) => {
+        const percent = (amt / totalSpent) * 100;
+
+        if (percent > 40) {
+            addSuggestion(`📊 ${cat} makes up ${percent.toFixed(1)}% of your spending. Set a strict limit.`);
+        } else if (percent > 25) {
+            addSuggestion(`💡 ${cat} spending is moderate. Try small reductions.`);
         }
     });
 
-    // Streak encouragement
-    if (streakCount >= 3) {
-        const li = document.createElement("li");
-        li.textContent = `🔥 Amazing! You have a savings streak of ${streakCount} days. Keep it up!`;
-        suggestionsList.appendChild(li);
+    const highestCategory = Object.keys(catMap).reduce((a, b) =>
+        catMap[a] > catMap[b] ? a : b
+    );
+
+    addSuggestion(`🔍 Highest spending category: ${highestCategory}.`);
+}
+
+/* 3️⃣ DAILY SPENDING */
+function dailyAnalysis(avgDaily) {
+    addSuggestion(`📆 Average daily spending: ₹${avgDaily.toFixed(2)}.`);
+
+    if (avgDaily > 1000) {
+        addSuggestion("⚠️ Daily expenses are high. Try a no-spend day weekly.");
+    } else {
+        addSuggestion("👍 Daily spending looks controlled.");
     }
+}
+
+/* 4️⃣ GOAL INTELLIGENCE */
+function goalAnalysis() {
+    if (!goals || goals.length === 0) {
+        addSuggestion("🎯 Add financial goals to unlock goal-based insights.");
+        return;
+    }
+
+    goals.forEach(g => {
+        const progress = g.saved / g.amount;
+        const remaining = g.amount - g.saved;
+
+        if (progress < 0.3) {
+            addSuggestion(`💰 Goal "${g.name}" is slow. Save ₹${Math.ceil(remaining / 30)} per day.`);
+        } else if (progress >= 0.7 && progress < 1) {
+            addSuggestion(`🚀 You're close to achieving "${g.name}". Stay consistent!`);
+        } else if (progress >= 1) {
+            addSuggestion(`🏆 Goal "${g.name}" achieved! Set a new goal.`);
+        }
+    });
+}
+
+/* 5️⃣ SAVINGS BEHAVIOR */
+function savingsAnalysis() {
+    if (streakCount >= 7) {
+        addSuggestion(`🔥 ${streakCount}-day savings streak! Excellent discipline.`);
+    } else if (streakCount >= 3) {
+        addSuggestion("👏 Good savings habit forming. Keep going!");
+    } else {
+        addSuggestion("⚠️ No strong savings streak yet. Start small—consistency matters.");
+    }
+}
+
+/* 6️⃣ SMART FINANCIAL TIPS */
+function smartTips() {
+    const tips = [
+        "📘 Follow the 50-30-20 rule: Needs, Wants, Savings.",
+        "💳 Avoid impulse buying—wait 24 hours before purchases.",
+        "📉 Review subscriptions you rarely use.",
+        "💰 Save first, spend later.",
+        "📊 Analyze expenses weekly for better control.",
+        "🛒 Compare prices before buying.",
+        "📅 Plan monthly budgets in advance."
+    ];
+
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    addSuggestion(randomTip);
 }
 
 /*************** PDF ***************/
