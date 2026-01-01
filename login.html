@@ -1,88 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CashEase Login</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>CashEase Auth</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #667eea, #764ba2);
+}
+.auth-box {
+  max-width: 400px;
+  margin: 100px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+}
+.auth-box h2 {
+  text-align: center;
+}
+.auth-box input, .auth-box button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+}
+.auth-box button {
+  cursor: pointer;
+}
+.link {
+  text-align: center;
+  color: blue;
+  cursor: pointer;
+  font-size: 14px;
+}
+.google-btn {
+  background: #db4437;
+  color: white;
+}
+</style>
 </head>
+
 <body>
 
-<div class="dashboard" style="max-width:400px;margin:100px auto;">
-  <h2>Login / Signup</h2>
+<div class="auth-box">
+  <h2 id="title">Login</h2>
 
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
 
-  <button onclick="login()">Login</button>
-  <button onclick="signup()">Signup</button>
+  <button onclick="handleLogin()">Login</button>
+  <button onclick="handleSignup()">Signup</button>
+  <button class="google-btn" onclick="googleLogin()">Login with Google</button>
+
+  <p class="link" onclick="forgotPassword()">Forgot Password?</p>
 </div>
 
-<!-- Firebase SDKs (Modular) -->
 <script type="module">
-  // Import the functions you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-  // Firebase configuration
-  const firebaseConfig = {
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
   apiKey: "AIzaSyBAJ9hRzqHXapze81EO-C2ZwWNU5mUM4Xc",
   authDomain: "expense-tracker25-26.firebaseapp.com",
   projectId: "expense-tracker25-26",
   storageBucket: "expense-tracker25-26.firebasestorage.app",
   messagingSenderId: "553107606008",
   appId: "1:553107606008:web:8e5b677921c93f7ea3ee0d"
-  };
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  // Redirect if already logged in
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
+/* 🔐 AUTO REDIRECT */
+onAuthStateChanged(auth, user => {
+  if (user && user.emailVerified) {
+    window.location.href = "index.html";
+  }
+});
+
+/* ================= LOGIN ================= */
+window.handleLogin = () => {
+  const email = getEmail();
+  const password = getPassword();
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(({ user }) => {
+      if (!user.emailVerified) {
+        alert("⚠️ Verify your email before login");
+        auth.signOut();
+        return;
+      }
+      alert("✅ Login successful");
       window.location.href = "index.html";
-    }
-  });
+    })
+    .catch(() => {
+      alert("❌ Invalid email or password");
+    });
+};
 
-  // Login function
-  window.login = () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+/* ================= SIGNUP ================= */
+window.handleSignup = () => {
+  const email = getEmail();
+  const password = getPassword();
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
+  if (password.length < 6) {
+    alert("⚠️ Password must be at least 6 characters");
+    return;
+  }
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        alert("Login successful!");
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        alert("Error: " + error.message);
-      });
-  };
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(({ user }) => {
+      sendEmailVerification(user);
+      alert("📧 Verification email sent. Please verify before login.");
+      auth.signOut();
+    })
+    .catch(err => {
+      if (err.code === "auth/email-already-in-use") {
+        alert("⚠️ Email already exists. Please login.");
+      } else {
+        alert(err.message);
+      }
+    });
+};
 
-  // Signup function
-  window.signup = () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+/* ================= GOOGLE LOGIN ================= */
+window.googleLogin = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then(() => {
+      window.location.href = "index.html";
+    })
+    .catch(err => alert(err.message));
+};
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
+/* ================= FORGOT PASSWORD ================= */
+window.forgotPassword = () => {
+  const email = getEmail();
+  sendPasswordResetEmail(auth, email)
+    .then(() => alert("📩 Password reset email sent"))
+    .catch(() => alert("❌ Enter a valid registered email"));
+};
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        alert("Account created successfully! You can now login.");
-      })
-      .catch((error) => {
-        alert("Error: " + error.message);
-      });
-  };
+/* ================= HELPERS ================= */
+function getEmail() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) throw alert("Enter email");
+  return email;
+}
+function getPassword() {
+  const password = document.getElementById("password").value.trim();
+  if (!password) throw alert("Enter password");
+  return password;
+}
 </script>
 
 </body>
