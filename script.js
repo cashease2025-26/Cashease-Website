@@ -1,4 +1,4 @@
-/*************** FIREBASE IMPORTS ***************/
+
 import {
   collection,
   addDoc,
@@ -13,7 +13,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-/*************** GLOBAL VARIABLES ***************/
+
 let expenses = [];
 let goals = [];
 let chart;
@@ -25,7 +25,7 @@ const auth = window.auth;
 const db = window.db;
 let userId = null;
 
-/*************** DOM ELEMENTS ***************/
+
 const expenseForm = document.getElementById("expenseForm");
 const tableBody = document.querySelector("#expenseTable tbody");
 const totalAmount = document.getElementById("totalAmount");
@@ -36,7 +36,7 @@ const limitForm = document.getElementById("limitForm");
 const suggestionsList = document.getElementById("suggestionsList");
 const streakDisplay = document.getElementById("streakCount");
 
-/*************** AUTH CHECK ***************/
+
 onAuthStateChanged(auth, async user => {
   if (!user) {
     window.location.href = "login.html";
@@ -48,7 +48,7 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-/*************** FIRESTORE ***************/
+
 async function fetchExpenses() {
   const snap = await getDocs(collection(db, "users", userId, "expenses"));
   expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -91,7 +91,7 @@ async function deleteGoalFirestore(id) {
   await deleteDoc(doc(db, "users", userId, "goals", id));
 }
 
-/*************** EXPENSE FORM ***************/
+
 expenseForm.addEventListener("submit", async e => {
     e.preventDefault();
     const desc = document.getElementById("desc").value;
@@ -105,7 +105,7 @@ expenseForm.addEventListener("submit", async e => {
     await addExpenseFirestore(expense);
     expenseForm.reset();
 });
-/*************** LIMIT ***************/
+
 limitForm.addEventListener("submit", e => {
     e.preventDefault();
     limit = parseFloat(document.getElementById("limit").value);
@@ -122,7 +122,6 @@ function checkLimit() {
     }
 }
 
-/*************** TABLE & CHART LOGIC ***************/
 function updateTable() {
     tableBody.innerHTML = "";
     let total = 0;
@@ -175,7 +174,6 @@ function updateChart() {
     });
 }
 
-/*************** GOAL LOGIC ***************/
 goalForm.addEventListener("submit", async e => {
     e.preventDefault();
     const name = document.getElementById("goalName").value;
@@ -231,7 +229,6 @@ async function deleteGoal(index) {
     renderGoals();
 }
 
-/*************** RENDER GOALS ***************/
 function renderGoals() {
     goalList.innerHTML = "";
     goals.forEach((g, i) => {
@@ -258,7 +255,6 @@ function renderGoals() {
     });
 }
 
-/*************** SUGGESTIONS LOGIC ***************/
 function generateSuggestions() {
     suggestionsList.innerHTML = "";
 
@@ -280,14 +276,14 @@ function generateSuggestions() {
     smartTips();
 }
 
-/* HELPER */
+
 function addSuggestion(text) {
     const li = document.createElement("li");
     li.textContent = text;
     suggestionsList.appendChild(li);
 }
 
-/* 1️⃣ BUDGET ANALYSIS */
+
 function budgetAnalysis(totalSpent) {
     if (!limit || limit <= 0) return;
 
@@ -304,7 +300,6 @@ function budgetAnalysis(totalSpent) {
     }
 }
 
-/* 2️⃣ CATEGORY ANALYSIS */
 function categoryAnalysis(totalSpent) {
     const catMap = {};
 
@@ -329,7 +324,6 @@ function categoryAnalysis(totalSpent) {
     addSuggestion(`🔍 Highest spending category: ${highestCategory}.`);
 }
 
-/* 3️⃣ DAILY SPENDING */
 function dailyAnalysis(avgDaily) {
     addSuggestion(`📆 Average daily spending: ₹${avgDaily.toFixed(2)}.`);
 
@@ -340,7 +334,6 @@ function dailyAnalysis(avgDaily) {
     }
 }
 
-/* 4️⃣ GOAL INTELLIGENCE */
 function goalAnalysis() {
     if (!goals || goals.length === 0) {
         addSuggestion("🎯 Add financial goals to unlock goal-based insights.");
@@ -361,7 +354,6 @@ function goalAnalysis() {
     });
 }
 
-/* 5️⃣ SAVINGS BEHAVIOR */
 function savingsAnalysis() {
     if (streakCount >= 7) {
         addSuggestion(`🔥 ${streakCount}-day savings streak! Excellent discipline.`);
@@ -372,7 +364,6 @@ function savingsAnalysis() {
     }
 }
 
-/* 6️⃣ SMART FINANCIAL TIPS */
 function smartTips() {
     const tips = [
         "📘 Follow the 50-30-20 rule: Needs, Wants, Savings.",
@@ -388,55 +379,123 @@ function smartTips() {
     addSuggestion(randomTip);
 }
 
-/*************** PDF ***************/
 function generatePDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = new jsPDF("p", "mm", "a4");
+
     const monthVal = document.getElementById("reportMonth").value;
     let filtered = expenses;
-    if (monthVal !== "all") filtered = expenses.filter(e => new Date(e.date).getMonth() == monthVal);
 
-    let y = 15;
-    doc.setFontSize(18);
-    doc.text("CashEase - Financial Report", 14, y);
-    y += 10;
+    if (monthVal !== "all") {
+        filtered = expenses.filter(
+            e => new Date(e.date).getMonth() == monthVal
+        );
+    }
+
+    doc.setFontSize(20);
+    doc.text("CashEase – Financial Report", 14, 20);
 
     doc.setFontSize(11);
-    doc.text(`Generated on: ${new Date().toDateString()}`, 14, y);
-    y += 10;
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toDateString()}`, 14, 28);
 
-    const total = filtered.reduce((s,e)=>s+e.amount,0);
-    doc.text(`Total Expense: ₹${total.toFixed(2)}`, 14, y);
-    y += 8;
+    doc.setDrawColor(0);
+    doc.line(14, 32, 196, 32);
 
+    const totalExpense = filtered.reduce((s, e) => s + e.amount, 0);
+
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text("Expense Summary", 14, 42);
+
+    doc.autoTable({
+        startY: 46,
+        head: [["Metric", "Value"]],
+        body: [
+            ["Total Expenses", `₹ ${totalExpense.toFixed(2)}`],
+            ["Number of Transactions", filtered.length],
+            ["Report Type", monthVal === "all" ? "All Months" : "Selected Month"]
+        ],
+        theme: "grid",
+        styles: { fontSize: 11 }
+    });
+
+  
     const catMap = {};
-    filtered.forEach(e=>catMap[e.category]=(catMap[e.category]||0)+e.amount);
-    doc.setFontSize(14);
-    doc.text("Category Breakdown", 14, y);
-    y += 8;
-
-    doc.setFontSize(11);
-    Object.keys(catMap).forEach(c=>{
-        doc.text(`${c}: ₹${catMap[c].toFixed(2)}`, 18, y);
-        y += 6;
+    filtered.forEach(e => {
+        catMap[e.category] = (catMap[e.category] || 0) + e.amount;
     });
 
-    y += 8;
-    doc.setFontSize(14);
-    doc.text("Goals Summary", 14, y);
-    y += 8;
+    const categoryRows = Object.entries(catMap).map(([cat, amt]) => [
+        cat,
+        `₹ ${amt.toFixed(2)}`,
+        `${((amt / totalExpense) * 100).toFixed(1)} %`
+    ]);
 
-    doc.setFontSize(11);
-    goals.forEach(g=>{
-        const p = ((g.saved/g.amount)*100).toFixed(1);
-        doc.text(`${g.name} - ${p}% completed`, 18, y);
-        y += 6;
+    doc.setFontSize(14);
+    doc.text("Category Breakdown", 14, doc.lastAutoTable.finalY + 10);
+
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 14,
+        head: [["Category", "Amount", "Percentage"]],
+        body: categoryRows,
+        theme: "striped",
+        styles: { fontSize: 11 },
+        headStyles: { fillColor: [30, 41, 59] }
     });
 
-    doc.save("CashEase_Report.pdf");
+    const expenseRows = filtered.map(e => [
+        new Date(e.date).toDateString(),
+        e.category,
+        `₹ ${e.amount.toFixed(2)}`
+    ]);
+
+    doc.setFontSize(14);
+    doc.text("Detailed Expenses", 14, doc.lastAutoTable.finalY + 10);
+
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 14,
+        head: [["Date", "Category", "Amount"]],
+        body: expenseRows,
+        theme: "grid",
+        styles: { fontSize: 10 },
+        columnStyles: {
+            2: { halign: "right" }
+        }
+    });
+
+    if (goals.length > 0) {
+        const goalRows = goals.map(g => [
+            g.name,
+            `₹ ${g.saved}`,
+            `₹ ${g.amount}`,
+            `${((g.saved / g.amount) * 100).toFixed(1)} %`
+        ]);
+
+        doc.setFontSize(14);
+        doc.text("Goals Progress", 14, doc.lastAutoTable.finalY + 10);
+
+        doc.autoTable({
+            startY: doc.lastAutoTable.finalY + 14,
+            head: [["Goal", "Saved", "Target", "Progress"]],
+            body: goalRows,
+            theme: "striped",
+            styles: { fontSize: 11 },
+            headStyles: { fillColor: [15, 23, 42] }
+        });
+    }
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text(
+        "Generated by CashEase Expense Tracker",
+        14,
+        pageHeight - 10
+    );
+
+    doc.save("CashEase_Financial_Report.pdf");
 }
 
-/*************** LOGOUT ***************/
 window.logout = () => {
   signOut(auth).then(() => window.location.href = "login.html");
 };
