@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ---------- GLOBAL RESET ---------- */
+
 * {
   margin: 0;
   padding: 0;
@@ -14,7 +14,7 @@
   font-family: "Poppins", Arial, sans-serif;
 }
 
-/* ---------- PAGE BACKGROUND ---------- */
+
 body {
   min-height: 100vh;
   background:
@@ -27,7 +27,7 @@ body {
   color: #e5e7eb;
 }
 
-/* ---------- AUTH CARD ---------- */
+
 .auth-box {
   width: 100%;
   max-width: 420px;
@@ -41,7 +41,7 @@ body {
   animation: fadeIn 0.8s ease;
 }
 
-/* ---------- TITLE ---------- */
+
 .auth-box h2 {
   text-align: center;
   margin-bottom: 24px;
@@ -51,7 +51,7 @@ body {
   color: #f8fafc;
 }
 
-/* ---------- INPUTS ---------- */
+
 .auth-box input {
   width: 100%;
   padding: 14px 16px;
@@ -75,7 +75,7 @@ body {
   background: rgba(2, 6, 23, 1);
 }
 
-/* ---------- BUTTONS ---------- */
+
 .auth-box button {
   width: 100%;
   padding: 14px;
@@ -102,7 +102,7 @@ body {
     inset 0 0 0 1px rgba(56, 189, 248, 0.5);
 }
 
-/* ---------- GOOGLE BUTTON ---------- */
+
 .google-btn {
   background: linear-gradient(135deg, #1f2937, #020617);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -126,7 +126,6 @@ body {
   text-decoration: underline;
 }
 
-/* ---------- ANIMATION ---------- */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -169,7 +168,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-/* 🔥 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyBAJ9hRzqHXapze81EO-C2ZwWNU5mUM4Xc",
   authDomain: "expense-tracker25-26.firebaseapp.com",
@@ -182,14 +180,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* 🔐 AUTO REDIRECT */
+
 onAuthStateChanged(auth, user => {
   if (user && user.emailVerified) {
     window.location.href = "index.html";
   }
 });
 
-/* ================= LOGIN ================= */
+
 window.handleLogin = () => {
   const email = getEmail();
   const password = getPassword();
@@ -209,7 +207,7 @@ window.handleLogin = () => {
     });
 };
 
-/* ================= SIGNUP ================= */
+
 window.handleSignup = () => {
   const email = getEmail();
   const password = getPassword();
@@ -234,7 +232,7 @@ window.handleSignup = () => {
     });
 };
 
-/* ================= GOOGLE LOGIN ================= */
+
 window.googleLogin = () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
@@ -244,7 +242,7 @@ window.googleLogin = () => {
     .catch(err => alert(err.message));
 };
 
-/* ================= FORGOT PASSWORD ================= */
+
 window.forgotPassword = () => {
   const email = getEmail();
   sendPasswordResetEmail(auth, email)
@@ -252,7 +250,7 @@ window.forgotPassword = () => {
     .catch(() => alert("❌ Enter a valid registered email"));
 };
 
-/* ================= HELPERS ================= */
+
 function getEmail() {
   const email = document.getElementById("email").value.trim();
   if (!email) throw alert("Enter email");
