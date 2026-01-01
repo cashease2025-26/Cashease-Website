@@ -283,7 +283,6 @@ footer {
     letter-spacing: 0.5px;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6);
 }
-/* GOALS */
 #goalList {
     margin-top: 20px;
 }
@@ -307,7 +306,6 @@ footer {
     height: 100%;
     background: linear-gradient(90deg,#5eead4,#7dd3fc);
 }
-/* FIX FOR GOAL PROGRESS BAR */
 .goal-box {
     background: rgba(35,35,35,0.9);
     padding: 20px;
