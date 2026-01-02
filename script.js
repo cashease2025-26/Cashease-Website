@@ -25,6 +25,26 @@ const auth = window.auth;
 const db = window.db;
 let userId = null;
 
+// ===== FIREBASE MONTHLY LIMIT =====
+async function fetchMonthlyLimit() {
+    const snap = await getDocs(collection(db, "users", userId, "settings"));
+    snap.forEach(d => {
+        if (d.id === "budget") {
+            limit = d.data().limit || 0;
+        }
+    });
+}
+
+async function saveMonthlyLimit(value) {
+    const ref = doc(db, "users", userId, "settings", "budget");
+    try {
+        await updateDoc(ref, { limit: value });
+    } catch {
+        await addDoc(collection(db, "users", userId, "settings"), {
+            limit: value
+        });
+    }
+}
 
 const expenseForm = document.getElementById("expenseForm");
 const tableBody = document.querySelector("#expenseTable tbody");
@@ -44,6 +64,7 @@ onAuthStateChanged(auth, async user => {
     userId = user.uid;
     await fetchExpenses();
     await fetchGoals();
+    await fetchMonthlyLimit();
     generateSuggestions();
   }
 });
@@ -106,21 +127,39 @@ expenseForm.addEventListener("submit", async e => {
     expenseForm.reset();
 });
 
-limitForm.addEventListener("submit", e => {
+limitForm.addEventListener("submit", async e => {
     e.preventDefault();
+
     limit = parseFloat(document.getElementById("limit").value);
-    alert(`Spending limit set to ₹${limit.toFixed(2)}`);
+    if (!limit || limit <= 0) return;
+
+    await saveMonthlyLimit(limit);
+
+    alert(`Monthly spending limit saved: ₹${limit.toFixed(2)}`);
     limitForm.reset();
-    generateSuggestions(); 
+    generateSuggestions();
 });
 
+
 function checkLimit() {
-    if (limit <= 0) return;
-    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
-    if (total > limit) {
-        alert(`⚠️ Alert: You have exceeded your spending limit of ₹${limit.toFixed(2)}!`);
+    if (!limit || limit <= 0) return;
+
+    const now = new Date();
+    const m = now.getMonth();
+    const y = now.getFullYear();
+
+    const monthlyTotal = expenses
+        .filter(e => {
+            const d = new Date(e.date);
+            return d.getMonth() === m && d.getFullYear() === y;
+        })
+        .reduce((sum, e) => sum + e.amount, 0);
+
+    if (monthlyTotal > limit) {
+        alert(`⚠️ You exceeded your MONTHLY limit of ₹${limit.toFixed(2)}!`);
     }
 }
+
 
 function updateTable() {
     tableBody.innerHTML = "";
